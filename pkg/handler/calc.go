@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"log/slog"
 
 	"github.com/child6yo/y-lms-calculator/pkg/service"
 )
@@ -18,33 +19,47 @@ type ResponseModel struct {
 }
 
 func CalculatorHandler(w http.ResponseWriter, r *http.Request) {
-	var s RequestModel
+	var req RequestModel
 
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		httpNewError(w, 500, "Internal server error")
 		return
 	}
 	defer r.Body.Close()
 
-	err = json.Unmarshal(data, &s)
+	err = json.Unmarshal(data, &req)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
+		httpNewError(w, 500, "Expression is not valid")
 		return
 	}
 
-	res, err := service.Calc(s.Expression)
+	res, err := service.Calc(req.Expression)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
+		httpNewError(w, 500, "Expression is not valid")
 		return
 	}
 	response := ResponseModel{Result: fmt.Sprintf("%v", res)}
 	responseData, err := json.Marshal(response)
 	if err != nil { 
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		httpNewError(w, 500, "Internal server error")
 		return 
 	}
 
 	w.Header().Set("Content-Type", "application/json") 
 	w.Write(responseData)
+}
+
+type ErrorModel struct {
+	Error string `json:"error"`
+}
+
+func httpNewError(w http.ResponseWriter, statusCode int, message string) {
+	slog.Error(message)
+
+	response := ErrorModel{Error: message}
+	responseData, _ := json.Marshal(response)
+	w.Header().Set("Content-Type", "application/json") 
+	w.Write(responseData)
+	http.Error(w, http.StatusText(statusCode), statusCode)
 }
