@@ -47,7 +47,6 @@ func TestCalcultatorHandler2(t *testing.T) {
 		},
 	}
 
-
 	for i, tc := range testCases {
 		req := httptest.NewRequest("POST", "http://localhost:8000/api/v1/calculate", tc.requestBody)
 		w := httptest.NewRecorder()
