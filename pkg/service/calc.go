@@ -7,14 +7,8 @@ import (
 	"unicode"
 )
 
-type CalcService struct {
-}
 
-func NewCalcService() *CalcService {
-	return &CalcService{}
-}
-
-func (CalcService) Calc(expression string) (float64, error) {
+func Calc(expression string) (float64, error) {
 	tokens, err := tokenize(expression)
 	if err != nil {
 		return 0, err

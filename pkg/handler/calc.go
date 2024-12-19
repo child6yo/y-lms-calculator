@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/child6yo/y-lms-calculator/pkg/service"
 )
 
 type RequestModel struct {
@@ -15,7 +17,7 @@ type ResponseModel struct {
 	Result string `json:"result"`
 }
 
-func (h *Handler) CalculatorHandler(w http.ResponseWriter, r *http.Request) {
+func CalculatorHandler(w http.ResponseWriter, r *http.Request) {
 	var s RequestModel
 
 	data, err := io.ReadAll(r.Body)
@@ -31,7 +33,7 @@ func (h *Handler) CalculatorHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := h.services.Calculator.Calc(s.Expression)
+	res, err := service.Calc(s.Expression)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
 		return
