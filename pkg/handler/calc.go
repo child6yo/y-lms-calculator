@@ -21,17 +21,28 @@ func (h *Handler) CalculatorHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 	defer r.Body.Close()
 
-	json.Unmarshal(data, &s)
+	err = json.Unmarshal(data, &s)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
+		return
+	}
 
-	res, _ := h.services.Calculator.Calc(s.Expression)
+	res, err := h.services.Calculator.Calc(s.Expression)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
+		return
+	}
 	response := ResponseModel{Result: fmt.Sprintf("%v", res)}
 	responseData, err := json.Marshal(response)
 	if err != nil { 
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError) 
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return 
 	}
+
 	w.Header().Set("Content-Type", "application/json") 
 	w.Write(responseData)
 }
