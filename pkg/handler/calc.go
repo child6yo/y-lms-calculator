@@ -22,7 +22,7 @@ func CalculatorHandler(w http.ResponseWriter, r *http.Request) {
 	var req RequestModel
 
 	data, err := io.ReadAll(r.Body)
-	if err != nil {
+	if err != nil || len(data) == 0 {
 		httpNewError(w, 500, "Internal server error")
 		return
 	}
@@ -30,17 +30,17 @@ func CalculatorHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = json.Unmarshal(data, &req)
 	if err != nil {
-		httpNewError(w, 500, "Expression is not valid")
+		httpNewError(w, 422, "Expression is not valid")
 		return
 	}
 
 	res, err := service.Calc(req.Expression)
 	if err != nil {
-		httpNewError(w, 500, "Expression is not valid")
+		httpNewError(w, 422, "Expression is not valid")
 		return
 	}
 	response := ResponseModel{Result: fmt.Sprintf("%v", res)}
-	responseData, err := json.Marshal(response)
+	responseData, err := json.MarshalIndent(response, "", " ")
 	if err != nil { 
 		httpNewError(w, 500, "Internal server error")
 		return 
@@ -58,8 +58,7 @@ func httpNewError(w http.ResponseWriter, statusCode int, message string) {
 	slog.Error(message)
 
 	response := ErrorModel{Error: message}
-	responseData, _ := json.Marshal(response)
-	w.Header().Set("Content-Type", "application/json") 
-	w.Write(responseData)
-	http.Error(w, http.StatusText(statusCode), statusCode)
+	responseData, _ := json.MarshalIndent(response, "", " ")
+
+	http.Error(w, string(responseData), statusCode)
 }
