@@ -18,6 +18,14 @@ type ResponseModel struct {
 	Result string `json:"result"`
 }
 
+func Logger(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		slog.Info("New request received")
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func CalculatorHandler(w http.ResponseWriter, r *http.Request) {
 	var req RequestModel
 
@@ -45,6 +53,8 @@ func CalculatorHandler(w http.ResponseWriter, r *http.Request) {
 		httpNewError(w, 500, "Internal server error")
 		return 
 	}
+
+	slog.Info("Requst successfully handled")
 
 	w.Header().Set("Content-Type", "application/json") 
 	w.Write(responseData)

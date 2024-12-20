@@ -4,7 +4,8 @@ import "net/http"
 
 func InitEndpoints() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/v1/calculate", CalculatorHandler)
+	logger := Logger(CalculatorHandler)
+	mux.Handle("/api/v1/calculate", logger)
 
 	return mux
 }
