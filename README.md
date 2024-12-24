@@ -8,9 +8,16 @@
  - Все, что связано с бизнес-логикой (калькулятор) помещено в pkg/service
  - Запуск сервера осуществляется в cmd/main.go
 #
+**Установка:**
+
+    git clone https://github.com/child6yo/y-lms-calculator
+    cd y-lms-calculator
+
 **Запуск:**
 
     go run ./cmd/main.go
+
+ - Запуск осуществляется по порту 8000.
 
 #
 
@@ -25,7 +32,7 @@
 
 Успешно:
 
-    curl --location 'localhost/api/v1/calculate' \
+    curl --location 'localhost:8000/api/v1/calculate' \
     --header 'Content-Type: application/json' \
     --data '{
       "expression": "2+2*2"
@@ -33,7 +40,7 @@
 
 Ошибка 422:
 ```
-curl --location 'localhost/api/v1/calculate' \
+curl --location 'localhost:8000/api/v1/calculate' \
 --header 'Content-Type: application/json' \
 --data '{
   "expression": 2+2*2
@@ -43,6 +50,6 @@ curl --location 'localhost/api/v1/calculate' \
 Ошибка 500:
 ```
 
-    curl --location 'localhost/api/v1/calculate' \
+    curl --location 'localhost:8000/api/v1/calculate' \
     --header 'Content-Type: application/json'
     ```
